@@ -1,0 +1,63 @@
+name: Build ShoulderCamVC
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v3
+
+      - name: Download Plugin SDK
+        shell: powershell
+        run: |
+          git clone --recurse-submodules https://github.com/DK22Pac/plugin-sdk.git "$env:GITHUB_WORKSPACE\plugin-sdk"
+
+      - name: Generate Plugin SDK project
+        shell: cmd
+        run: |
+          cd /d "%GITHUB_WORKSPACE%\plugin-sdk"
+          call "tools\generate\Visual Studio.bat"
+
+      - name: Build Plugin SDK VC
+        shell: cmd
+        run: |
+          cd /d "%GITHUB_WORKSPACE%\plugin-sdk"
+          msbuild plugin.slnx /p:Configuration=zDebug /p:Platform="Mixed Platforms" /target:plugin_vc /m
+
+      - name: Generate ShoulderCamVC project
+        shell: cmd
+        env:
+          PLUGIN_SDK_DIR: ${{ github.workspace }}\plugin-sdk
+        run: |
+          cd /d "%GITHUB_WORKSPACE%"
+          "%GITHUB_WORKSPACE%\plugin-sdk\tools\premake\premake5.exe" vs2022
+
+      - name: Build ShoulderCamVC
+        shell: cmd
+        env:
+          PLUGIN_SDK_DIR: ${{ github.workspace }}\plugin-sdk
+        run: |
+          cd /d "%GITHUB_WORKSPACE%"
+          msbuild project_files\ShoulderCamVC.sln /p:Configuration=ReleaseVC /p:Platform=Win32 /m
+
+      - name: Locate ASI
+        shell: powershell
+        run: |
+          Get-ChildItem -Path "$env:GITHUB_WORKSPACE" -Filter "ShoulderCamVC.asi" -Recurse | Format-Table FullName,Length
+
+      - name: Upload mod
+        uses: actions/upload-artifact@v4
+        with:
+          name: ShoulderCamVC
+          path: |
+            **/ShoulderCamVC.asi
+            ShoulderCamVC.ini
