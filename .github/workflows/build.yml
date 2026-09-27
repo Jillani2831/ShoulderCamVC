@@ -45,6 +45,19 @@ jobs:
           set "PLUGIN_SDK_DIR=%GITHUB_WORKSPACE%\plugin-sdk"
       
           call "tools\generate\Visual Studio.bat"
+          
+      - name: Check RenderWare files
+        shell: cmd
+        run: |
+          echo Checking RenderWare directory...
+          dir "%GITHUB_WORKSPACE%\plugin-sdk\plugin_vc\game_vc\rw"
+      
+          if not exist "%GITHUB_WORKSPACE%\plugin-sdk\plugin_vc\game_vc\rw" (
+            echo ERROR: RenderWare directory is missing!
+            exit /b 1
+          )
+      
+          echo RenderWare directory FOUND.
 
       - name: Build Plugin SDK VC
         shell: cmd
