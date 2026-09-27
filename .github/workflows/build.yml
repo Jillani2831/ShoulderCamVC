@@ -20,17 +20,24 @@ jobs:
         shell: powershell
         run: |
           git clone --recurse-submodules https://github.com/DK22Pac/plugin-sdk.git "$env:GITHUB_WORKSPACE\plugin-sdk"
-          - name: Check Plugin SDK
-            shell: cmd
-            run: |
-              cd /d "%GITHUB_WORKSPACE%\plugin-sdk"
-              echo === Plugin SDK ===
-              dir
-              echo === RenderWare ===
-              dir plugin_vc\game_vc\rw
-              echo === Existing libraries ===
+      
+      - name: Check Plugin SDK
+        shell: cmd
+        run: |
+          cd /d "%GITHUB_WORKSPACE%\plugin-sdk"
+      
+          echo === Plugin SDK ===
+          dir
+      
+          echo === RenderWare ===
+          dir plugin_vc\game_vc\rw
+      
+          echo === Existing libraries ===
+          if exist output\lib (
               dir output\lib
-
+          ) else (
+              echo output\lib does not exist yet
+          )
       - name: Generate Plugin SDK project
         shell: cmd
         run: |
@@ -59,22 +66,22 @@ jobs:
       
           msbuild plugin_vc\Plugin_VC.vcxproj ^
             /p:Configuration=zDebug ^
-            /p:Platform="Win32" ^
+            /p:Platform=Win32 ^
             /p:OutDir="%GITHUB_WORKSPACE%\plugin-sdk\output\lib\" ^
             /p:IntDir="%GITHUB_WORKSPACE%\plugin-sdk\output\obj\Plugin_VC\Debug\" ^
             /m
       
-          echo === SDK LIBS ===
-          dir "%GITHUB_WORKSPACE%\plugin-sdk\output\lib"
-          - name: Verify Plugin SDK library
-            shell: cmd
-            run: |
-              if not exist "%GITHUB_WORKSPACE%\plugin-sdk\output\lib\plugin_vc.lib" (
-                echo ERROR: plugin_vc.lib was not generated!
-                exit /b 1
-              )
-          
-              echo plugin_vc.lib FOUND!
+      - name: Verify Plugin SDK library
+        shell: cmd
+        run: |
+          if not exist "%GITHUB_WORKSPACE%\plugin-sdk\output\lib\plugin_vc.lib" (
+              echo ERROR: plugin_vc.lib was not generated!
+              exit /b 1
+          )
+      
+          echo ================================
+          echo plugin_vc.lib FOUND!
+          echo ================================
 
       - name: Generate ShoulderCamVC project
         shell: cmd
