@@ -61,16 +61,34 @@ jobs:
 
       - name: Build Plugin SDK VC
         shell: cmd
+        env:
+          PLUGIN_SDK_DIR: ${{ github.workspace }}\plugin-sdk
         run: |
           cd /d "%GITHUB_WORKSPACE%\plugin-sdk"
+      
+          echo PLUGIN_SDK_DIR=%PLUGIN_SDK_DIR%
       
           msbuild plugin_vc\Plugin_VC.vcxproj ^
             /p:Configuration=zDebug ^
             /p:Platform=Win32 ^
-            /p:OutDir=%GITHUB_WORKSPACE%\plugin-sdk\output\lib ^
-            /p:IntDir=%GITHUB_WORKSPACE%\plugin-sdk\output\obj\Plugin_VC\Debug ^
+            /p:OutDir=%GITHUB_WORKSPACE%\plugin-sdk\output\lib\ ^
+            /p:IntDir=%GITHUB_WORKSPACE%\plugin-sdk\output\obj\Plugin_VC\Debug\ ^
             /m
+      - name: Check RenderWare SDK
+        shell: cmd
+        run: |
+          cd /d "%GITHUB_WORKSPACE%\plugin-sdk"
       
+          echo === PLUGIN_SDK_DIR ===
+          echo %PLUGIN_SDK_DIR%
+      
+          echo === RenderWare directory ===
+          dir "%PLUGIN_SDK_DIR%\plugin_vc\game_vc\rw"
+      
+          if not exist "%PLUGIN_SDK_DIR%\plugin_vc\game_vc\rw" (
+            echo ERROR: RenderWare directory is missing!
+            exit /b 1
+          )
       - name: Verify Plugin SDK library
         shell: cmd
         run: |
