@@ -24,26 +24,9 @@ jobs:
       - name: Generate Plugin SDK project
         shell: cmd
         run: |
-          echo === Checking Plugin SDK folder ===
           cd /d "%GITHUB_WORKSPACE%\plugin-sdk"
-      
-          echo === Current directory ===
-          cd
-      
-          echo === Plugin SDK contents ===
-          dir
-      
-          echo === Searching for Visual Studio.bat ===
-          dir /s /b "Visual Studio.bat"
-      
-          if not exist "tools\generate\Visual Studio.bat" (
-            echo ERROR: tools\generate\Visual Studio.bat was NOT found.
-            exit /b 1
-          )
-      
-          echo === Generator found ===
-          set "PLUGIN_SDK_DIR=%GITHUB_WORKSPACE%\plugin-sdk"
-      
+          set PLUGIN_SDK_DIR=%GITHUB_WORKSPACE%\plugin-sdk
+          echo PLUGIN_SDK_DIR=%PLUGIN_SDK_DIR%
           call "tools\generate\Visual Studio.bat"
           
       - name: Check RenderWare files
@@ -63,6 +46,8 @@ jobs:
         shell: cmd
         run: |
           cd /d "%GITHUB_WORKSPACE%\plugin-sdk"
+          set PLUGIN_SDK_DIR=%GITHUB_WORKSPACE%\plugin-sdk
+          echo PLUGIN_SDK_DIR=%PLUGIN_SDK_DIR%
           msbuild plugin.slnx /p:Configuration=zDebug /p:Platform="Mixed Platforms" /target:plugin_vc /m
 
       - name: Generate ShoulderCamVC project
