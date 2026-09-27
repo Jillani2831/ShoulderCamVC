@@ -67,21 +67,24 @@ jobs:
           msbuild plugin_vc\Plugin_VC.vcxproj ^
             /p:Configuration=zDebug ^
             /p:Platform=Win32 ^
-            /p:OutDir="%GITHUB_WORKSPACE%\plugin-sdk\output\lib\" ^
-            /p:IntDir="%GITHUB_WORKSPACE%\plugin-sdk\output\obj\Plugin_VC\Debug\" ^
+            /p:OutDir=%GITHUB_WORKSPACE%\plugin-sdk\output\lib ^
+            /p:IntDir=%GITHUB_WORKSPACE%\plugin-sdk\output\obj\Plugin_VC\Debug ^
             /m
       
       - name: Verify Plugin SDK library
         shell: cmd
         run: |
+          echo === Plugin SDK output ===
+          dir "%GITHUB_WORKSPACE%\plugin-sdk\output\lib"
+      
           if not exist "%GITHUB_WORKSPACE%\plugin-sdk\output\lib\plugin_vc.lib" (
-              echo ERROR: plugin_vc.lib was not generated!
-              exit /b 1
+            echo.
+            echo ERROR: plugin_vc.lib was NOT generated!
+            exit /b 1
           )
       
-          echo ================================
-          echo plugin_vc.lib FOUND!
-          echo ================================
+          echo.
+          echo SUCCESS: plugin_vc.lib FOUND!
 
       - name: Generate ShoulderCamVC project
         shell: cmd
@@ -97,8 +100,11 @@ jobs:
           PLUGIN_SDK_DIR: ${{ github.workspace }}\plugin-sdk
         run: |
           cd /d "%GITHUB_WORKSPACE%"
-          msbuild project_files\ShoulderCamVC.sln /p:Configuration=ReleaseVC /p:Platform=Win32 /m
-
+      
+          msbuild project_files\ShoulderCamVC.sln ^
+            /p:Configuration=ReleaseVC ^
+            /p:Platform=Win32 ^
+            /m
       - name: Locate ASI
         shell: powershell
         run: |
