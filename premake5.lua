@@ -26,6 +26,7 @@ project "ShoulderCamVC"
         "$(PLUGIN_SDK_DIR)/plugin_vc",
         "$(PLUGIN_SDK_DIR)/plugin_vc/game_vc",
         "$(PLUGIN_SDK_DIR)/plugin_vc/game_vc/enums"
+        "$(PLUGIN_SDK_DIR)/plugin_vc/game_vc/rw"
     }
 
     libdirs {
