@@ -84,7 +84,11 @@ static void LoadIni() {
 
 static CVector CameraRight(const CVector& front) {
     CVector up(0.0f, 0.0f, 1.0f);
-    CVector right = CrossProduct(front, up);
+    CVector right(
+    front.y * up.z - front.z * up.y,
+    front.z * up.x - front.x * up.z,
+    front.x * up.y - front.y * up.x
+);
     float len = right.Magnitude();
     if (len > 0.0001f) right /= len;
     return right;
@@ -106,7 +110,12 @@ static void Apply() {
     // The active camera already contains the game's mouse/controller rotation.
     CVector front = cam.m_vecFront;
     if (front.Magnitude() < 0.0001f) return;
-    front.Normalise();
+   float frontLen = front.Magnitude();
+if (frontLen > 0.0001f) {
+    front.x /= frontLen;
+    front.y /= frontLen;
+    front.z /= frontLen;
+}
 
     // This is the key: move the whole camera rig sideways.
     // Negative world-right moves the camera to the player's left,
@@ -142,8 +151,12 @@ static void Apply() {
     cam.m_vecSource = newSource;
     cam.m_vecTargetCoorsForFudgeInter = newTarget;
     cam.m_vecFront = newTarget - newSource;
-    if (cam.m_vecFront.Magnitude() > 0.0001f)
-        cam.m_vecFront.Normalise();
+    float camFrontLen = cam.m_vecFront.Magnitude();
+if (camFrontLen > 0.0001f) {
+    cam.m_vecFront.x /= camFrontLen;
+    cam.m_vecFront.y /= camFrontLen;
+    cam.m_vecFront.z /= camFrontLen;
+}
 
     if (fov > 0.001f)
         cam.m_fFOV = fov;
